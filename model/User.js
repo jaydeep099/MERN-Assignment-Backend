@@ -3,12 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  image: {
-    path: String,
-    filename: String,
-    mimeType: String,
-    size: Number,
-  },
+  imagePath: String,
   email: {
     type: String,
     required: true,
