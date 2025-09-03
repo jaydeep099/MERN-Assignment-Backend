@@ -1,28 +1,46 @@
-const yup = require("yup");
+const Joi = require("joi");
 
-exports.registerUserValidate = yup.object().shape({
-  firstName: yup
-    .string()
-    .required("First name is required")
-    .min(2, "Minimum 2 characters are required"),
-  lastName: yup
-    .string()
-    .required("Last name is required")
-    .min(2, "Minimum 2 characters are required"),
-  email: yup.string().required("Email is required").email("email is not valid"),
+exports.registerSchema = Joi.object({
+  firstName: Joi.string().required().min(2).messages({
+    "string.base": "First name must be a string",
+    "string.empty": "First name is required",
+    "string.min": "Minimum 2 characters are required",
+    "any.required": "First name is required",
+  }),
+  lastName: Joi.string().required().min(2).messages({
+    "string.base": "Last name must be a string",
+    "string.empty": "Last name is required",
+    "string.min": "Minimum 2 characters are required",
+    "any.required": "Last name is required",
+  }),
+  email: Joi.string().required().email().messages({
+    "string.base": "Email must be a string",
+    "string.empty": "Email is required",
+    "string.email": "Email is not valid",
+    "any.required": "Email is required",
+  }),
 });
 
-exports.passwordValidate = yup.object().shape({
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+exports.setPasswordSchema = Joi.object({
+  password: Joi.string().min(6).required().messages({
+    "string.base": "Password must be a string",
+    "string.empty": "Password is required",
+    "string.min": "Password must be at least 6 characters",
+    "any.required": "Password is required",
+  }),
 });
 
-exports.loginUserValidate = yup.object().shape({
-  email: yup.string().required("Email is required").email("email is not valid"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+exports.loginSchema= Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.base": "Email must be a string",
+    "string.empty": "Email is required",
+    "string.email": "Email is not valid",
+    "any.required": "Email is required",
+  }),
+  password: Joi.string().min(6).required().messages({
+    "string.base": "Password must be a string",
+    "string.empty": "Password is required",
+    "string.min": "Password must be at least 6 characters",
+    "any.required": "Password is required",
+  }),
 });

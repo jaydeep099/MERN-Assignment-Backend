@@ -1,6 +1,12 @@
-const app = require("./app");
+const express = require("express");
+const bodyParser = require("body-parser");
+const { loggingRequest } = require("./middleware/logger");
 const { dbConnect } = require("./config/database");
 require("dotenv").config();
+
+const app = express();
+app.use(bodyParser.json());
+app.use(loggingRequest);
 
 dbConnect()
   .then(() => {
