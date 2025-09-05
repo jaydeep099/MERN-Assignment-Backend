@@ -1,36 +1,4 @@
 const User = require("../model/User");
-const bcrypt = require("bcrypt");
-
-exports.createUser = async (user) => {
-  try {
-    return await User.create(user);
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-};
-
-exports.savePassword = async (email, password) => {
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    if (!password) {
-      throw new Error("Password is required");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-
-    return await user.save();
-  } catch (err) {
-    console.error(err);
-    throw new Error("Failed to update password");
-  }
-};
 
 exports.updateUser = async (userId, updateData) => {
   try {
@@ -54,16 +22,7 @@ exports.deleteUser = async (userId) => {
 
 exports.getUser = async (userId) => {
   try {
-    return await User.findById({ _id: userId }).select('-password');
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-};
-
-exports.checkUserByMail = async (email) => {
-  try {
-    return await User.findOne({ email });
+    return await User.findById({ _id: userId }).select("-password");
   } catch (err) {
     console.log(err);
     throw err;

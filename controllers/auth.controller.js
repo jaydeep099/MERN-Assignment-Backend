@@ -1,36 +1,45 @@
 const jwt = require("jsonwebtoken");
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
-const {
-  checkUserByMail,
-  createUser,
-  getUser,
-} = require("../service/user.service");
+const authServices = require("../service/auth.service");
+const userServices = require("../service/user.service")
 const { sendSetPasswordMail } = require("../utils/setPasswordMail");
 
 exports.registration = async (req, res) => {
   const { firstName, lastName, email } = req.body;
   try {
-    const existingUser = await checkUserByMail(req.body.email);
+    const existingUser = await authServices.checkUserByMail(req.body.email);
     if (existingUser) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: "User already exists. Try with different mail",
       });
     }
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
-      expiresIn: "30m",
-    });
-    const user = await createUser({
+    const profileImage = req.file
+      ? `D:/MERN/Backend/upload/images/${req.file.filename}`
+      : null;
+
+    if (!profileImage) {
+      return res.status(400).json({
+        message: "Could not register as your profile image failed to upload",
+      });
+    }
+    const user = await authServices.createUser({
       firstName,
       lastName,
       email,
-      profileImage: "/",
+      profileImage,
+    });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30m",
     });
 
     await sendSetPasswordMail(email, token);
-
-    return res.status(201).json({ user });
+    return res.status(201).json({
+      token,
+      user,
+      message: "Mail has been to your registered mail for Password setup",
+    });
   } catch (err) {
     console.log(err);
 
@@ -40,10 +49,30 @@ exports.registration = async (req, res) => {
   }
 };
 
+exports.setPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user.id;
+
+    const user = await userServices.getUser(userId);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return res.status(200).json({
+      message: "Your password has been set.",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      message: "Setting up password failed.",
+    });
+  }
+};
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await checkUserByMail(email);
+    const user = await authServices.checkUserByMail(email);
     if (!user || !user.password) {
       return res
         .status(400)
@@ -57,15 +86,11 @@ exports.login = async (req, res) => {
         .json({ message: "Incorrect password. Please try again." });
     }
 
-    const userWithoutPassword = await userService.getUser(user._id);
+    const userWithoutPassword = await userServices.getUser(user._id);
 
-    const token = jwt.sign(
-      { id: user._id, user: user },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30m",
-      }
-    );
+    const token = jwt.sign({ user: user }, process.env.JWT_SECRET, {
+      expiresIn: "30m",
+    });
 
     return res.status(200).json({
       token,
