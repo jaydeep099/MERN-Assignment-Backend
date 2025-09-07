@@ -54,17 +54,14 @@ exports.setPassword = async (req, res) => {
     const { password } = req.body;
     const userId = req.user.id;
 
-    const user = await userServices.getUser(userId);
-    const hashedPassword = await bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-    await user.save();
-    return res.status(200).json({
+    await authServices.savePassword(userId,password);
+    return res.status(201).json({
       message: "Your password has been set.",
     });
   } catch (err) {
     console.log(err);
     return res.status(400).json({
-      message: "Setting up password failed.",
+      message: "Failed to set password!",
     });
   }
 };
@@ -95,6 +92,7 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       token,
       user: userWithoutPassword,
+      message: "LoggedIn successfully"
     });
   } catch (err) {
     console.log(err);

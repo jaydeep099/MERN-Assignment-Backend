@@ -30,8 +30,7 @@ userRoutes.post(
 
 userRoutes.post(
   "/login", 
-  validate(loginSchema), 
-  authenticateToken, 
+  validate(loginSchema),  
   login);
 
 module.exports = userRoutes;

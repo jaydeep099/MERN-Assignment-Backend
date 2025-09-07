@@ -10,9 +10,9 @@ exports.createUser = async (user) => {
   }
 };
 
-exports.savePassword = async (email, password) => {
+exports.savePassword = async (id, password) => {
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findById({ _id: id });
 
     if (!user) {
       throw new Error("User not found");
@@ -31,8 +31,6 @@ exports.savePassword = async (email, password) => {
     throw new Error("Failed to update password");
   }
 };
-
-
 
 exports.checkUserByMail = async (email) => {
   try {
