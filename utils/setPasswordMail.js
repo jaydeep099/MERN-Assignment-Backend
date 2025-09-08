@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const path = require("path");
-
+const ejs = require("ejs");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -11,9 +11,11 @@ const transporter = nodemailer.createTransport({
 
 exports.sendSetPasswordMail = async (email, token) => {
   try {
+    const MAIL_TEMPLATE_PATH = process.env.MAIL_TEMPLATE_PATH;
+    
     const templatePath = path.join(
-      __dirname,
-      "./templates/email/setPasswordTemplate.ejs"
+      MAIL_TEMPLATE_PATH,
+      "setPasswordTemplate.ejs"
     );
 
     const html = await ejs.renderFile(templatePath, { token });
@@ -23,12 +25,8 @@ exports.sendSetPasswordMail = async (email, token) => {
       subject: "Set your password",
       html,
     });
-
-    return res
-      .status(200)
-      .json({ message: "Mail has been sent to your registered email" });
   } catch (err) {
     console.log(err);
-    return res.status(400).json({ message: "Mail is not sent." });
+    throw err;
   }
 };

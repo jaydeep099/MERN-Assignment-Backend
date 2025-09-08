@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-exports.registerSchema = Joi.object({
+const registerSchema = Joi.object({
   firstName: Joi.string().required().min(2).messages({
     "string.base": "First name must be a string",
     "string.empty": "First name is required",
@@ -21,7 +21,7 @@ exports.registerSchema = Joi.object({
   }),
 });
 
-exports.setPasswordSchema = Joi.object({
+const setPasswordSchema = Joi.object({
   password: Joi.string().min(6).required().messages({
     "string.base": "Password must be a string",
     "string.empty": "Password is required",
@@ -30,7 +30,7 @@ exports.setPasswordSchema = Joi.object({
   }),
 });
 
-exports.loginSchema= Joi.object({
+const loginSchema = Joi.object({
   email: Joi.string().email().required().messages({
     "string.base": "Email must be a string",
     "string.empty": "Email is required",
@@ -44,3 +44,9 @@ exports.loginSchema= Joi.object({
     "any.required": "Password is required",
   }),
 });
+
+module.exports = {
+  registerSchema,
+  loginSchema,
+  setPasswordSchema,
+};
