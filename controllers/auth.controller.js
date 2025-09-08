@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const authServices = require("../service/auth.service");
-const userServices = require("../service/user.service")
+const userServices = require("../service/user.service");
 const { sendSetPasswordMail } = require("../utils/setPasswordMail");
 
 exports.registration = async (req, res) => {
@@ -14,15 +14,8 @@ exports.registration = async (req, res) => {
       });
     }
 
-    const profileImage = req.file
-      ? `D:/MERN/Backend/upload/images/${req.file.filename}`
-      : null;
+    const profileImage = req.file ? `${req.file.filename}` : null;
 
-    if (!profileImage) {
-      return res.status(400).json({
-        message: "Could not register as your profile image failed to upload",
-      });
-    }
     const user = await authServices.createUser({
       firstName,
       lastName,
@@ -54,7 +47,7 @@ exports.setPassword = async (req, res) => {
     const { password } = req.body;
     const userId = req.user.id;
 
-    await authServices.savePassword(userId,password);
+    await authServices.savePassword(userId, password);
     return res.status(201).json({
       message: "Your password has been set.",
     });
@@ -73,7 +66,7 @@ exports.login = async (req, res) => {
     if (!user || !user.password) {
       return res
         .status(400)
-        .json({ message: "user does not exist with this mail." });
+        .json({ message: "User does not exist with this mail." });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -92,7 +85,7 @@ exports.login = async (req, res) => {
     return res.status(200).json({
       token,
       user: userWithoutPassword,
-      message: "LoggedIn successfully"
+      message: "LoggedIn successfully",
     });
   } catch (err) {
     console.log(err);

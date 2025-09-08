@@ -12,25 +12,19 @@ const {
   loginSchema,
 } = require("../validations/userValidation");
 
-const userRoutes = require("express").Router();
-
-userRoutes.post(
+const authRoutes = require("express").Router();
+authRoutes.post(
   "/register",
-  upload.single("profileImage"),
   validate(registerSchema),
+  upload.single("profileImage"),
   registration
 );
-
-userRoutes.post(
+authRoutes.post(
   "/setpassword",
   validate(setPasswordSchema),
   authenticateToken,
   setPassword
 );
+authRoutes.post("/login", validate(loginSchema), login);
 
-userRoutes.post(
-  "/login", 
-  validate(loginSchema),  
-  login);
-
-module.exports = userRoutes;
+module.exports = authRoutes;

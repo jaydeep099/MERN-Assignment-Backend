@@ -18,10 +18,6 @@ exports.savePassword = async (id, password) => {
       throw new Error("User not found");
     }
 
-    if (!password) {
-      throw new Error("Password is required");
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
 
