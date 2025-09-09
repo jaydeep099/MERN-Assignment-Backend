@@ -109,9 +109,9 @@ exports.getParticularArticle = async (req, res) => {
   }
 };
 
-exports.allArticle = async (req, res) => {
+exports.allPublishedArticle = async (req, res) => {
   try {
-    const articles = await articleServices.getAllArticles();
+    const articles = await articleServices.getAllPublishedArticles();
     return res.status(200).json({
       articles,
     });

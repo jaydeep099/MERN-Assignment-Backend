@@ -29,9 +29,9 @@ const deleteArticle = async (articleId) => {
   }
 };
 
-const getAllArticles = async () => {
+const getAllPublishedArticles = async () => {
   try {
-    return await Article.find();
+    return await Article.find({articleStatus:"published"});
   } catch (err) {
     console.log(err);
     throw err;
@@ -51,6 +51,6 @@ module.exports = {
   createArticle,
   updateArticle,
   deleteArticle,
-  getAllArticles,
+  getAllPublishedArticles,
   getParticularArticle,
 };
