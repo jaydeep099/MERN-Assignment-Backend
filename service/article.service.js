@@ -1,6 +1,6 @@
 const Article = require("../model/Article");
 
-exports.createArticle = async (articleData) => {
+const createArticle = async (articleData) => {
   try {
     await Article.create(articleData);
   } catch (err) {
@@ -9,16 +9,18 @@ exports.createArticle = async (articleData) => {
   }
 };
 
-exports.updateArticle = async (articleId, articleData) => {
+const updateArticle = async (articleId, articleData) => {
   try {
-    return await Article.findByIdAndUpdate({ _id: articleId }, articleData);
+    return await Article.findByIdAndUpdate({ _id: articleId }, articleData, {
+      new: true,
+    });
   } catch (err) {
     console.log(err);
     throw err;
   }
 };
 
-exports.deleteArticle = async (articleId) => {
+const deleteArticle = async (articleId) => {
   try {
     return await Article.findByIdAndDelete({ _id: articleId });
   } catch (err) {
@@ -27,7 +29,7 @@ exports.deleteArticle = async (articleId) => {
   }
 };
 
-exports.getAllArticles = async () => {
+const getAllArticles = async () => {
   try {
     return await Article.find();
   } catch (err) {
@@ -36,11 +38,19 @@ exports.getAllArticles = async () => {
   }
 };
 
-exports.getUserParticularArticles = async (userId) => {
+const getParticularArticle = async (articleId) => {
   try {
-    return await Article.find({ authorId: userId });
+    return await Article.findById({ _id: articleId });
   } catch (err) {
     console.log(err);
     throw err;
   }
+};
+
+module.exports = {
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  getAllArticles,
+  getParticularArticle,
 };

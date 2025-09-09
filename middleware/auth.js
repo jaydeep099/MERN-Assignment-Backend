@@ -55,6 +55,8 @@ const authenticateToken = (req, res, next) => {
           message: message,
         });
       }
+      req.user = decoded.user
+      next();
     });
   } catch (error) {
     console.error("Jwt Middleware Error:", error);

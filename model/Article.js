@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const articleSchema = new mongoose.Schema({
   title: String,
   content: String,
-  imagePath: String,
+  articleImage: String,
   articleStatus:{
     type: String,
     enum:['draft','published']
   },
-  authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  authorId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 const Article = mongoose.model("Article", articleSchema);
