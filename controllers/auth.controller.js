@@ -45,10 +45,14 @@ exports.registration = async (req, res) => {
 exports.setPassword = async (req, res) => {
   try {
     const { password } = req.body;
-    const userId = req.user.id;
+
+    const userId = req.id;
+
+    const user = await userServices.getUser(userId);
 
     await authServices.savePassword(userId, password);
-    return res.status(201).json({
+    return res.status(200).json({
+      user: user,
       message: "Your password has been set.",
     });
   } catch (err) {
@@ -78,7 +82,7 @@ exports.login = async (req, res) => {
 
     const userWithoutPassword = await userServices.getUser(user._id);
 
-    const token = jwt.sign({ user: user }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "30m",
     });
 

@@ -55,7 +55,7 @@ const authenticateToken = (req, res, next) => {
           message: message,
         });
       }
-      req.user = decoded.user
+      req.id = decoded.id
       next();
     });
   } catch (error) {

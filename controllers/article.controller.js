@@ -1,4 +1,6 @@
 const articleServices = require("../service/article.service");
+const fs = require("fs");
+const path = require("path");
 
 exports.createArticle = async (req, res) => {
   try {
@@ -11,7 +13,7 @@ exports.createArticle = async (req, res) => {
       content,
       articleImage,
       articleStatus,
-      authorId: req.user._id,
+      authorId: req.id,
     });
 
     console.log(article);
@@ -40,35 +42,55 @@ exports.updateArticle = async (req, res) => {
 
     const articleId = req.params.id;
 
-    const articleImage = req.file ? `${req.file.filename}` : null;
-
     const article = await articleServices.getParticularArticle(articleId);
 
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
     }
 
-    console.log(req.user._id, article.authorId);
+    const updateData = {
+      title,
+      content,
+      articleStatus,
+    };
 
-    if (article.authorId.toString() !== req.user._id) {
+    if (req.file) {
+      if (article.articleImage) {
+        const dirPath = process.env.DIR_PATH
+        const oldImagePath = path.join(
+          dirPath,
+          "/upload/images",
+          article.articleImage
+        );
+
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.error("Error deleting old image:", err);
+          } else {
+            console.log("Old image deleted:", article.articleImage);
+          }
+        });
+      }
+      updateData.articleImage = `${req.file.filename}`;
+    }
+
+    if (article.authorId.toString() !== req.id) {
       return res
         .status(403)
         .json({ message: "You are not authorized to update this article" });
     }
 
-    const updatedArticle = await articleServices.updateArticle(articleId, {
-      title,
-      content,
-      articleImage,
-      articleStatus,
-    });
+    const updatedArticle = await articleServices.updateArticle(
+      articleId,
+      updateData
+    );
 
-    res
+    return res
       .status(200)
       .json({ message: "Article updated", article: updatedArticle });
   } catch (error) {
     console.error("Error updating article:", error);
-    res.status(500).json({ message: "Error updating article" });
+    return res.status(500).json({ message: "Error updating article" });
   }
 };
 
@@ -81,17 +103,34 @@ exports.deleteArticle = async (req, res) => {
       return res.status(404).json({ message: "Article not found" });
     }
 
-    if (article.authorId.toString() !== req.user._id) {
+    if (article.authorId.toString() !== req.id) {
       return res
         .status(403)
         .json({ message: "You are not authorized to update this article" });
     }
 
+    if (article.articleImage) {
+        const dirPath = process.env.DIR_PATH
+        const oldImagePath = path.join(
+          dirPath,
+          "/upload/images",
+          article.articleImage
+        );
+        
+        fs.unlink(oldImagePath, (err) => {
+          if (err) {
+            console.error("Error deleting old image:", err);
+          } else {
+            console.log("Old image deleted:", article.articleImage);
+          }
+        });
+      }
+
     await articleServices.deleteArticle(articleId);
     return res.status(200).json({ message: "Your article has been deleted." });
   } catch (err) {
     console.log("Error deleting article", err);
-    res.status(500).json({ message: "Error updating article" });
+    return res.status(500).json({ message: "Error deleting article" });
   }
 };
 
@@ -105,7 +144,7 @@ exports.getParticularArticle = async (req, res) => {
     });
   } catch (error) {
     console.log("Error fetching article", err);
-    res.status(500).json({ message: "Error in getting article" });
+    return res.status(500).json({ message: "Error in getting article" });
   }
 };
 
@@ -117,6 +156,6 @@ exports.allPublishedArticle = async (req, res) => {
     });
   } catch (error) {
     console.log("Error fetching articles", err);
-    res.status(500).json({ message: "Error in getting articles" });
+    return res.status(500).json({ message: "Error in getting articles" });
   }
 };

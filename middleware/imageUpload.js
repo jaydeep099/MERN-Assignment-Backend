@@ -9,8 +9,12 @@ const upload = multer({
       cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${Date.now()}${ext}`);
+      let cleanName = file.originalname
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9._-]/g, ""); 
+
+  cb(null, `${Date.now()}_${cleanName}`);
     },
   }),
   fileFilter: (req, file, cb) => {
