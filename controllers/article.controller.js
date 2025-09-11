@@ -16,8 +16,6 @@ exports.createArticle = async (req, res) => {
       authorId: req.id,
     });
 
-    console.log(article);
-
     if (articleStatus === "draft") {
       return res.status(200).json({
         message: "Article has been saved to Drafts",
@@ -56,7 +54,7 @@ exports.updateArticle = async (req, res) => {
 
     if (req.file) {
       if (article.articleImage) {
-        const dirPath = process.env.DIR_PATH
+        const dirPath = process.env.DIR_PATH;
         const oldImagePath = path.join(
           dirPath,
           "/upload/images",
@@ -110,21 +108,21 @@ exports.deleteArticle = async (req, res) => {
     }
 
     if (article.articleImage) {
-        const dirPath = process.env.DIR_PATH
-        const oldImagePath = path.join(
-          dirPath,
-          "/upload/images",
-          article.articleImage
-        );
-        
-        fs.unlink(oldImagePath, (err) => {
-          if (err) {
-            console.error("Error deleting old image:", err);
-          } else {
-            console.log("Old image deleted:", article.articleImage);
-          }
-        });
-      }
+      const dirPath = process.env.DIR_PATH;
+      const oldImagePath = path.join(
+        dirPath,
+        "/upload/images",
+        article.articleImage
+      );
+
+      fs.unlink(oldImagePath, (err) => {
+        if (err) {
+          console.error("Error deleting old image:", err);
+        } else {
+          console.log("Old image deleted:", article.articleImage);
+        }
+      });
+    }
 
     await articleServices.deleteArticle(articleId);
     return res.status(200).json({ message: "Your article has been deleted." });
@@ -143,19 +141,27 @@ exports.getParticularArticle = async (req, res) => {
       article,
     });
   } catch (error) {
-    console.log("Error fetching article", err);
+    console.log("Error fetching article", error);
     return res.status(500).json({ message: "Error in getting article" });
   }
 };
 
 exports.allPublishedArticle = async (req, res) => {
   try {
-    const articles = await articleServices.getAllPublishedArticles();
+    const search = req.query.search;
+    const page = req.query.page;
+    const [articles] = await articleServices.getAllPublishedArticles(
+      search,
+      page
+    );
+    
     return res.status(200).json({
-      articles,
+      articles: articles.data,
+      total: articles.total[0]?.count || 0,
+      page: page,
     });
   } catch (error) {
-    console.log("Error fetching articles", err);
+    console.log("Error fetching articles", error);
     return res.status(500).json({ message: "Error in getting articles" });
   }
 };
