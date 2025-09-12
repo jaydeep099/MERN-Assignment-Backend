@@ -148,11 +148,18 @@ exports.getParticularArticle = async (req, res) => {
 
 exports.allPublishedArticle = async (req, res) => {
   try {
+    const status = req.query.status ;
     const search = req.query.search;
-    const page = req.query.page;
+    const page = parseInt(req.query.page) || 1;
+    const userId = req.query.userId || null;
+    const limit = 10;
+    
     const [articles] = await articleServices.getAllPublishedArticles(
+      status,
       search,
-      page
+      page,
+      limit,
+      userId
     );
     
     return res.status(200).json({

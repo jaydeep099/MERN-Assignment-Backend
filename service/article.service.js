@@ -1,4 +1,5 @@
 const Article = require("../model/Article");
+const mongoose = require("mongoose");
 
 const createArticle = async (articleData) => {
   try {
@@ -29,15 +30,33 @@ const deleteArticle = async (articleId) => {
   }
 };
 
-const getAllPublishedArticles = async (search = "", page = 1, limit = 10) => {
+const getAllPublishedArticles = async (
+  status = "published",
+  search = "",
+  page = 1,
+  limit = 10,
+  userId
+) => {
   try {
+    const matchConditions = {};
+
+    if (status === "published") {
+      matchConditions.articleStatus = "published";
+    } else if (status === "draft") {
+      matchConditions.articleStatus = "draft";
+      if (userId) {
+        matchConditions.authorId = new mongoose.Types.ObjectId(userId);
+      }
+    }
+
+    matchConditions.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { content: { $regex: search, $options: "i" } },
+    ];
+
     return await Article.aggregate([
       {
-        $match: search.trim()
-          ? {
-              title: { $regex: search, $options: "i" },
-            }
-          : {},
+        $match: matchConditions,
       },
       {
         $facet: {
@@ -76,7 +95,7 @@ const getAllPublishedArticles = async (search = "", page = 1, limit = 10) => {
       },
     ]);
   } catch (err) {
-    console.log(err);
+    console.log("Error in getAllPublishedArticles service:", err);
     throw err;
   }
 };
