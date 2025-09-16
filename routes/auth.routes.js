@@ -21,8 +21,8 @@ authRoutes.post(
 );
 authRoutes.post(
   "/setpassword",
-  validate(setPasswordSchema),
   authenticateToken,
+  validate(setPasswordSchema),
   setPassword
 );
 authRoutes.post("/login", validate(loginSchema), login);
